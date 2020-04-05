@@ -1,0 +1,28 @@
+{
+  "name": "disjs",
+  "version": "0.0.1",
+  "description": "A small discord api wrapper for NodeJS nothing fancy.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrAugu/disjs.git"
+  },
+  "keywords": [
+    "bot",
+    "discord",
+    "nodejs",
+    "js"
+  ],
+  "author": "MrAugu#7917",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MrAugu/disjs/issues"
+  },
+  "homepage": "https://github.com/MrAugu/disjs#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.0"
+  }
+}
