@@ -61,6 +61,12 @@ class GatewayManager extends EventEmitter {
      */
     this._socket = null;
 
+    /**
+     * The latency between last heartbeat sending and acknowledgement in ms.
+     * @type {number} 
+     */
+    this.ping = -1;
+
     this.on("raw", (data) => this.onRaw(data));
     this.on("open", () => this.onOpen());
   }
@@ -77,6 +83,7 @@ class GatewayManager extends EventEmitter {
 
     this._socket.on("message", (data) => this.emit("raw", data));
     this._socket.on("open", () => this.emit("open"));
+    this._socket.on("close", () => this.onClose());
 
     this.state = "CONNECTING";
   }
@@ -94,14 +101,63 @@ class GatewayManager extends EventEmitter {
         this._socket.send(JSON.stringify(payloadObject));
         this.client.emit("debug", `Sending a heartbeat.`);
         this.lastHearbeat = Date.now();
+        setTimeout(() => {
+          if (this.lastHearbeat - this.lastHearbeatAcknowledged > 6500) {
+            this.client.emit("debug", `[Connection Health] No heartbeat acknowledgement received in the last ${this.lastHearbeat - this.lastHearbeatAcknowledged}ms, terminating the connection.`);
+            this._socket.terminate();
+          } else {
+            this.client.emit("debug", `[Connection Health] Connection alive, latency between sending and receiving acknowledgement is ${this.lastHearbeatAcknowledged - this.lastHearbeat}ms.`);
+          }
+        }, 7000);
       }, payload.d.heartbeat_interval);
       this.client.emit("debug", `Setting the hearbeat interval at ${payload.d.heartbeat_interval}ms.`);
       this._heartbeatInterval = interval;
+      this.identify();
+    } else if (payload.op === 11) {
+      this.client.emit("debug", "Heartbeat acknowledged.");
+      this.lastHearbeatAcknowledged = Date.now();
+      this.ping = this.lastHearbeatAcknowledged - this.lastHearbeat;
+    } else if (payload.op === 9) {
+      // Handle Invalid Session
+    } else if (payload.t === "READY") {
+      // Handle Initial State
     }
   }
 
   onOpen() {
     this.client.emit("debug", "Connection to the gateway opened.");
+    this.state = "CONNECTED";
+    this.connected = true;
+  }
+
+  onClose() {
+    this.state = "DISCONNECTED";
+    this.connected = false;
+    clearInterval(this._heartbeatInterval);
+    this.client.emit("debug", "Gateway connection has been closed, cleaning the heartbeat interval.\n(SoonTM) Attempting to RESUME...");
+  }
+
+  identify() {
+    this.client.emit("debug", "Preparing to send the IDENTIFY event.");
+    this.state = "HANDSHAKING";
+    const identifyPayload = {
+      op: 2,
+      d: {
+        token: this.client.token,
+        properties: {
+          "$os": process.platform,
+          "$browser": "disjs",
+          "$device": "disjs"
+        },
+        large_threshold: 250,
+        presence: {
+          status: "online",
+          afk: false
+        }
+      }
+    };
+    this._socket.send(JSON.stringify(identifyPayload));
+    this.client.emit("debug", "Sent the IDENTIFY event.");
   }
 }
 
