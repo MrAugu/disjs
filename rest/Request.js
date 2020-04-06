@@ -25,12 +25,17 @@ class Request {
      * @type {object}
      */
     this.headers = options.headers || {};
+
+    
+    if (!this.headers["User-Agent"]) Object.assign(this.headers, {
+        "User-Agent": `DiscordBot (https://github.com/MrAugu/disjs, 0.0.1)`
+    });
   }
 
   async send() {
     const requestOptions = {
-      method: this.method,
-      headers: this.headers
+      "method": this.method,
+      "headers": this.headers
     };
 
     if (!["get", "head"].includes(this.method)) requestOptions.body = this.body;

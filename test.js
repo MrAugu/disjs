@@ -1,4 +1,9 @@
 const Discord = require('./index');
-const client = new Discord.Client();
+const { token } = require("./secret.json");
+const client = new Discord.Client(token);
 
-client.login("NjgxMTM1ODc4MDA1MTk0NzUz.Xoo_rQ.O5V5HnqDMttfNW2ilRQxe-u18Q0");
+client.on("debug", (text) => {
+  console.log(text);
+});
+
+client.login();

@@ -4,7 +4,7 @@
  * @param {string} message - The message of the error.
  */
 class FetchError extends Error {
-  constructor (message, name, statusCode, method, endpoint) {
+  constructor (message, name, statusCode, method, url) {
     super(message);
 
     /**
@@ -27,7 +27,7 @@ class FetchError extends Error {
     /**
      * The http endpoint accessed.
      */
-    this.endpoint = endpoint;
+    this.endpoint = url;
   }
 }
 

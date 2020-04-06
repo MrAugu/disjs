@@ -1,5 +1,6 @@
 const Request = require("./Request");
 const { FetchError } = require("./Errors");
+const { parseRequestOutputToJson } = require("../utils/Rest");
 
 class RequestManager {
   constructor (client, authorizationPrefix) {
@@ -11,7 +12,7 @@ class RequestManager {
 
   push (request) {
     return new Promise((resolve, reject) => {
-      this.queue({
+      this.queueRequest({
         request,
         resolve,
         reject
@@ -19,7 +20,7 @@ class RequestManager {
     });
   }
 
-  queue(request) {
+  queueRequest(request) {
     if (!this.idle) {
       this.queue.push(request);
       return this.tick();
@@ -33,7 +34,19 @@ class RequestManager {
     return this.handle(this.queue.shift);
   }
 
-  async handle (request) {
+  async handle (requestObject) {
+    const { request, resolve, reject } = requestObject;
 
+    const response = await request.send();
+
+    if (response.ok) {
+      resolve(await parseRequestOutputToJson(response));
+    } else {
+      const err = new FetchError(`Request to ${request.url} failed, status code ${response.status}.`, "HTTPError", response.status, request.method, request.url);
+      this.client.emit("error", err);
+      reject(err);
+    }
   }
 }
+
+module.exports = RequestManager;
