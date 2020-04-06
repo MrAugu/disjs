@@ -4,6 +4,7 @@ const Request = require("../rest/Request");
 const { buildUrl } = require("../utils/Rest");
 const Endpoints = require("../rest/Endpoints");
 const GatewayManager = require("../gateway/GatewayManager");
+const Collection = require("../structures/Collection");
 
 class Client extends EventEmitter {
   constructor (token) {
@@ -51,6 +52,24 @@ class Client extends EventEmitter {
      * @type {bool}
      */
     this.ready = false;
+
+    /**
+     * A collection of cached users.
+     * @type {Collection}
+     */
+    this.users = new Collection();
+
+    /**
+     * A collection of cached channels.
+     * @type {Collection}
+     */
+    this.channels = new Collection();
+
+    /**
+     * A collection of cached guilds.
+     * @type {Collection}
+     */
+    this.guilds = new Collection();
   }
 
   async login () {

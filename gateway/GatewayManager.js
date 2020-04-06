@@ -1,7 +1,7 @@
 const { EventEmitter } = require("events");
 const WebSocket = require("ws");
-const User = require("../structures/User");
 const ClientUser = require("../structures/ClientUser");
+const Guild = require("../structures/Guild");
 
 class GatewayManager extends EventEmitter {
   constructor (client) {
@@ -136,7 +136,9 @@ class GatewayManager extends EventEmitter {
         this.client.emit("debug", `GatewayManager has reached the ready state. Awaiting ${this.client.__unavailableGuilds.length} guild(s) to be received before marking the bot as ready.`);
       }
     } else if (payload.t === "GUILD_CREATE" && !this.client.ready) {
-      // Handle Guild_Create
+      const newGuild = new Guild(this.client, payload.d);
+      this.client.guilds.set(newGuild.id, newGuild);
+      console.log(this.client.guilds); 
     }
   }
 

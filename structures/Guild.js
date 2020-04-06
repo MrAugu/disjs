@@ -1,3 +1,5 @@
+const CollectionUtils = require("../utils/Collection");
+
 class Guild {
   constructor (client, data) {
     /**
@@ -90,8 +92,13 @@ class Guild {
      */
     this.explicitContentFilter = data.explicit_content_filter;
 
-    this._roles = data.roles;
-    this._emojis = data.emojis;
+    /**
+     * A collection of this guild's roles.
+     * @type {Collection}
+     */
+    this.roles = CollectionUtils.collectifyRole(this, this.client, data.roles);
+
+    // this._emojis = data.emojis;
     
     /**
      * The guild's enabled feature list.
