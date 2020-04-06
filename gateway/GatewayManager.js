@@ -1,5 +1,7 @@
 const { EventEmitter } = require("events");
 const WebSocket = require("ws");
+const User = require("../structures/User");
+const ClientUser = require("../structures/ClientUser");
 
 class GatewayManager extends EventEmitter {
   constructor (client) {
@@ -112,6 +114,7 @@ class GatewayManager extends EventEmitter {
       }, payload.d.heartbeat_interval);
       this.client.emit("debug", `Setting the hearbeat interval at ${payload.d.heartbeat_interval}ms.`);
       this._heartbeatInterval = interval;
+      this.heartbeatInterval = payload.d.heartbeat_interval;
       this.identify();
     } else if (payload.op === 11) {
       this.client.emit("debug", "Heartbeat acknowledged.");
@@ -120,7 +123,20 @@ class GatewayManager extends EventEmitter {
     } else if (payload.op === 9) {
       // Handle Invalid Session
     } else if (payload.t === "READY") {
-      // Handle Initial State
+      this.state = "READY";
+      this.client.session.id = payload.d.session_id;
+      this.client.user = new ClientUser(this.client, payload.d.user);
+      this.client.__unavailableGuilds = payload.d.guilds;
+
+      if (!this.client.__unavailableGuilds) {
+        this.client.emit("debug", "No guilds to await loading, marking the client as ready.");
+        this.client.ready = true;
+        this.client.emit("ready");
+      } else {
+        this.client.emit("debug", `GatewayManager has reached the ready state. Awaiting ${this.client.__unavailableGuilds.length} guild(s) to be received before marking the bot as ready.`);
+      }
+    } else if (payload.t === "GUILD_CREATE" && !this.client.ready) {
+      // Handle Guild_Create
     }
   }
 

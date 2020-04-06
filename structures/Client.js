@@ -32,13 +32,25 @@ class Client extends EventEmitter {
      * Session data retrived from bot_gateway http request and gateway ready event.
      * @type {object}
      */
-    this.sessionData = {};
+    this.session = {};
 
     /**
      * The GatewayManager for this client.
      * @type {GatewayManager}
      */
     this._gatewayManager = new GatewayManager(this);
+
+    /**
+     * The client's user data holder.
+     * @type {ClientUser}
+     */
+    this.user = null;
+
+    /**
+     * Whether bot was dispatched the ready event or not.
+     * @type {bool}
+     */
+    this.ready = false;
   }
 
   async login () {
