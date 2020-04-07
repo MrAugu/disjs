@@ -1,5 +1,9 @@
 const RoleManager = require("../managers/RoleManager");
 const EmojiManager = require("../managers/EmojiManager");
+const User = require("../structures/User");
+const GuildMember = require("../structures/GuildMember");
+const Collection = require("../structures/Collection");
+const { Presence } = require("../structures/Presence");
 
 class Guild {
   constructor (client, data) {
@@ -101,8 +105,6 @@ class Guild {
     for (const role of data.roles) {
       this.roles.append(this, role);
     }
-
-    // this._emojis = data.emojis;
     
     /**
      * An instance of EmojiManager.
@@ -188,7 +190,21 @@ class Guild {
    this._voiceStates = data.voice_states;
    this._members = data.members;
    this._channels = data.channels;
-   this._presences = data.presences;
+
+   /**
+    * A collection of all members in this guild.
+    * @type {collection}
+    */
+    this.members = new Collection();
+
+    for (const member of data.members) {
+      this.client.users.set(member.user.id, new User(this.client, member.user));
+      this.members.set(member.user.id, new GuildMember(this.client, member, this));
+    }
+
+    for (const presence of data.presences) {
+      this.client.users.get(presence.user.id).presence = new Presence(presence);
+    }
 
    /**
     * The maximum amount of presences for this guild.
