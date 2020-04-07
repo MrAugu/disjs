@@ -4,6 +4,7 @@ const User = require("../structures/User");
 const GuildMember = require("../structures/GuildMember");
 const Collection = require("../structures/Collection");
 const { Presence } = require("../structures/Presence");
+const { Channel } = require("../structures/Channel");
 
 class Guild {
   constructor (client, data) {
@@ -68,18 +69,6 @@ class Guild {
     this.afkTimeout = data.afk_timeout;
 
     /**
-     * Whether the guild is embeddable (widget).
-     * @type {bool}
-     */
-    this.embeddable = data.embed_enabled;
-
-    /**
-     * The guild's embed channel id.
-     * @type {string}
-     */
-    this.embedChannelID = data.embed_channel_id;
-
-    /**
      * The guild's verification level.
      * @type {number}
      */
@@ -132,18 +121,6 @@ class Guild {
      * @type {string}
      */
     this.applicationID = data.application_id;
-
-    /**
-     * Whether or not the server widget is enabled.
-     * @type {bool}
-     */
-    this.widgetEnabled = data.widget_enabled;
-
-    /**
-     * The widget's channel id.
-     * @type {string}
-     */
-    this.widgetChannelID = data.widget_channel_id;
 
     /**
      * The system channel's id.
@@ -199,24 +176,26 @@ class Guild {
 
     for (const member of data.members) {
       this.client.users.set(member.user.id, new User(this.client, member.user));
+    }
+
+    for (const member of data.members) {
       this.members.set(member.user.id, new GuildMember(this.client, member, this));
+    }
+
+    /**
+     * A collection of channels in this guild.
+     * @type {Collection}
+     */
+    this.channels = new Collection();
+
+    for (const channel of data.channels) {
+      this.client.channels.set(channel.id, new Channel(this.client, channel, this));
+      this.channels.set(channel.id, new Channel(this.client, channel, this));
     }
 
     for (const presence of data.presences) {
       this.client.users.get(presence.user.id).presence = new Presence(presence);
     }
-
-   /**
-    * The maximum amount of presences for this guild.
-    * @type {number}
-    */
-   this.maximumPresences = data.max_presences;
-
-   /**
-    * The maximum amount of users for this guild.
-    * @type {number}
-    */
-   this.maximumMembers = data.max_members;
 
    /**
     * The guild's vanity url code.

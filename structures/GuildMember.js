@@ -58,7 +58,7 @@ class GuildMember {
      * This guild memebr use object.
      * @type {User}
      */
-    this.user = new User(this.client, data.user);
+    this.user = this.client.users.get(data.user.id);
   }
 }
 
