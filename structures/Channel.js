@@ -1,4 +1,5 @@
 const Collection = require("./Collection");
+const { channelTypes } = require("../constants/Channel");
 
 class PermissionOverwrite {
   constructor (data) {
@@ -52,7 +53,7 @@ class Channel {
      * The type of this channel.
      * @type {string}
      */
-    this.type = data.type;
+    this.type = channelTypes[data.type];
 
     /**
      * Position of the channel.

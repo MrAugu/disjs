@@ -5,6 +5,7 @@ const GuildMember = require("../structures/GuildMember");
 const Collection = require("../structures/Collection");
 const { Presence } = require("../structures/Presence");
 const { Channel } = require("../structures/Channel");
+const { verificationLevels, defaultMessageNotifications, explicitContentFilters, mfaLevels } = require("../constants/Guild");
 
 class Guild {
   constructor (client, data) {
@@ -70,21 +71,21 @@ class Guild {
 
     /**
      * The guild's verification level.
-     * @type {number}
+     * @type {string}
      */
-    this.verificationLevel = data.verification_level;
+    this.verificationLevel = verificationLevels[data.verification_level];
 
     /**
      * The guild's message notififcation level.
-     * @type {number}
+     * @type {string}
      */
-    this.defaultMessageNotificationLevel = data.default_message_notifications;
+    this.defaultMessageNotificationLevel = defaultMessageNotifications[data.default_message_notifications];
 
     /**
      * The guild's explicit content filter level.
-     * @type {number}
+     * @type {string}
      */
-    this.explicitContentFilter = data.explicit_content_filter;
+    this.explicitContentFilter = explicitContentFilters[data.explicit_content_filter];
 
     /**
      * An instance of RoleManager.
@@ -112,9 +113,9 @@ class Guild {
 
     /**
      * The guild's required mfa level.
-     * @type {number}
+     * @type {string}
      */
-    this.mfaLevel = data.mfa_level;
+    this.mfaLevel = mfaLevels[data.mfa_level];
 
     /**
      * Application ID of the guild's creator (if bot created.)
