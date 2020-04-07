@@ -138,7 +138,7 @@ class GatewayManager extends EventEmitter {
     } else if (payload.t === "GUILD_CREATE" && !this.client.ready) {
       const newGuild = new Guild(this.client, payload.d);
       this.client.guilds.set(newGuild.id, newGuild);
-      console.log(this.client.guilds); 
+      console.log(this.client.guilds.first().emojis); 
     }
   }
 

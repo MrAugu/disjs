@@ -1,4 +1,5 @@
-const CollectionUtils = require("../utils/Collection");
+const RoleManager = require("../managers/RoleManager");
+const EmojiManager = require("../managers/EmojiManager");
 
 class Guild {
   constructor (client, data) {
@@ -93,13 +94,25 @@ class Guild {
     this.explicitContentFilter = data.explicit_content_filter;
 
     /**
-     * A collection of this guild's roles.
-     * @type {Collection}
+     * An instance of RoleManager.
+     * @type {RoleManager}
      */
-    this.roles = CollectionUtils.collectifyRole(this, this.client, data.roles);
+    this.roles = new RoleManager(this.client);
+    for (const role of data.roles) {
+      this.roles.append(this, role);
+    }
 
     // this._emojis = data.emojis;
     
+    /**
+     * An instance of EmojiManager.
+     * @type {EmojiManager}
+     */
+    this.emojis = new EmojiManager(this.client, this);
+    for (const emoji of data.emojis) {
+      this.emojis.append(emoji);
+    }
+
     /**
      * The guild's enabled feature list.
      * @type {Array}
