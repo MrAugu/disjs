@@ -6,4 +6,8 @@ client.on("debug", (text) => {
   console.log(text);
 });
 
+client.on("ready", () => {
+  console.log(`Client is online. (${client.guilds.size} Guilds - ${client.users.size} Users - ${client.channels.size} Channels)`)
+});
+
 client.login();

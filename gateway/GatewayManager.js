@@ -138,7 +138,12 @@ class GatewayManager extends EventEmitter {
     } else if (payload.t === "GUILD_CREATE" && !this.client.ready) {
       const newGuild = new Guild(this.client, payload.d);
       this.client.guilds.set(newGuild.id, newGuild);
-      console.log(this.client.guilds);
+      if (this.client.guilds.size === this.client.__unavailableGuilds.length) {
+        delete this.client.__unavailableGuilds;
+        this.client.emit("debug", "Client received all of its guilds. Marking it as ready.");
+        this.client.emit("ready");
+        this.client.ready = true;
+      }
     }
   }
 

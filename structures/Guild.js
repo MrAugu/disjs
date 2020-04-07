@@ -6,6 +6,7 @@ const Collection = require("../structures/Collection");
 const { Presence } = require("../structures/Presence");
 const { Channel } = require("../structures/Channel");
 const { verificationLevels, defaultMessageNotifications, explicitContentFilters, mfaLevels } = require("../constants/Guild");
+const VoiceState = require("../structures/VoiceState");
 
 class Guild {
   constructor (client, data) {
@@ -165,10 +166,6 @@ class Guild {
     */
    this.memberCount = data.member_count;
 
-   this._voiceStates = data.voice_states;
-   this._members = data.members;
-   this._channels = data.channels;
-
    /**
     * A collection of all members in this guild.
     * @type {collection}
@@ -196,6 +193,16 @@ class Guild {
 
     for (const presence of data.presences) {
       this.client.users.get(presence.user.id).presence = new Presence(presence);
+    }
+
+    /**
+     * A collection of voice_states.
+     * @type {Collection}
+     */
+    this.voiceStates = new Collection();
+
+    for (const state of data.voice_states) {
+      this.voiceStates.set(state.user_id, new VoiceState(this.client, state, this));
     }
 
    /**
