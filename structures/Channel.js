@@ -1,5 +1,8 @@
 const Collection = require("./Collection");
 const { channelTypes } = require("../constants/Channel");
+const Request = require("../rest/Request");
+const Endpoints = require("../rest/Endpoints");
+const { buildUrl } = require("../utils/Rest");
 
 class PermissionOverwrite {
   constructor (data) {
@@ -136,6 +139,21 @@ class Channel {
      * @type {Date}
      */
     this.lastPinTimestamp = data.last_pin_timestamp ? new Date(data.last_pin_timestam).getTime() : null;
+  }
+
+  async send(message) {
+    if (this.type !== "TEXT") throw new TypeError("You can only send messages in text channels.");
+
+    const req = new Request("post", buildUrl(Endpoints.BASE_URL, this.client.version, Endpoints.SEND_MESSAGE(this.id)), this.client.token, {
+      body: {
+          "content": message
+      },
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    return await this.client._requestManager.push(req);
   }
 }
 

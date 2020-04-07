@@ -70,6 +70,11 @@ class Client extends EventEmitter {
      * @type {Collection}
      */
     this.guilds = new Collection();
+
+    /**
+     * A collection of cached messages.
+     */
+    this.messages = new Collection();
   }
 
   async login () {
@@ -77,11 +82,7 @@ class Client extends EventEmitter {
 
     this.emit("debug", "Preparing to connect to the gateway...");
 
-    const botGatewayRequest = new Request("get", buildUrl(Endpoints.BASE_URL, this.version, Endpoints.BOT_GATWAY), {
-      headers: {
-        "authorization": `${this._requestManager.authorizationPrefix} ${this.token}`
-      }
-    });
+    const botGatewayRequest = new Request("get", buildUrl(Endpoints.BASE_URL, this.version, Endpoints.BOT_GATWAY), this.token);
 
     const botGatewayResponse = await this._requestManager.push(botGatewayRequest);
     this.emit("debug", `Bot Gatway Response Details:\n- Url: ${botGatewayResponse.url}\n- Recomended Amount of shards: ${botGatewayResponse.shards}\nSession Start Limit Information:\n- Total Limit: ${botGatewayResponse.session_start_limit.total}\n- Remaining: ${botGatewayResponse.session_start_limit.remaining}\n- Resets After: ${botGatewayResponse.session_start_limit.reset_after}ms`);

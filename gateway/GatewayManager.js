@@ -2,6 +2,7 @@ const { EventEmitter } = require("events");
 const WebSocket = require("ws");
 const ClientUser = require("../structures/ClientUser");
 const Guild = require("../structures/Guild");
+const Message = require("../structures/Message");
 
 class GatewayManager extends EventEmitter {
   constructor (client) {
@@ -144,7 +145,12 @@ class GatewayManager extends EventEmitter {
         this.client.emit("ready");
         this.client.ready = true;
       }
+    } else if (payload.t === "MESSAGE_CREATE") {
+      const newMessage = new Message(this.client, payload.d);
+      this.client.emit("message", newMessage);
+      this.client.messages.set(newMessage.id, newMessage);
     }
+    //console.log(payload);
   }
 
   onOpen() {

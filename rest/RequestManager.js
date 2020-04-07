@@ -42,6 +42,7 @@ class RequestManager {
     if (response.ok) {
       resolve(await parseRequestOutputToJson(response));
     } else {
+      console.log(await parseRequestOutputToJson(response));
       const err = new FetchError(`Request to ${request.url} failed, status code ${response.status}.`, "HTTPError", response.status, request.method, request.url);
       this.client.emit("error", err);
       reject(err);
